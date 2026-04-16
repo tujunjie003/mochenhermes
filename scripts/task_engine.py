@@ -478,6 +478,38 @@ class TaskExecutionEngine:
         
         duration = (end_time - start_time).total_seconds()
         
+        # 如果失败，尝试自愈
+        if not result["success"] and tool == "terminal":
+            error_msg = result.get("error", "") or ""
+            cmd = params.get("command", "")
+            
+            self._log("WARN", task_id, f"子任务失败，尝试自愈: {error_msg[:50]}...")
+            
+            try:
+                from self_healing import SelfHealingEngine
+                healer = SelfHealingEngine(self.base_dir)
+                
+                healed, new_cmd = healer.heal_with_strategy(
+                    command=cmd,
+                    error=error_msg,
+                    tool=tool,
+                    context={"subtask": subtask}
+                )
+                
+                if healed and new_cmd != cmd:
+                    self._log("INFO", task_id, f"自愈成功，新命令: {new_cmd}")
+                    
+                    # 用新命令重试
+                    params["command"] = new_cmd
+                    result = self.tool_executor.execute(tool, params)
+                    
+                    # 更新duration
+                    if result["success"]:
+                        end_time = datetime.now()
+                        duration = (end_time - start_time).total_seconds()
+            except Exception as e:
+                self._log("ERROR", task_id, f"自愈过程出错: {e}")
+        
         subtask_result = SubTaskResult(
             subtask_id=subtask_id,
             step=subtask.get("step", 0),
