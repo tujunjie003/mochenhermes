@@ -1,0 +1,27 @@
+{
+  "task_id": "task_20260416190732_2496",
+  "passed": false,
+  "checks": {
+    "completeness": {
+      "passed": true,
+      "message": "所有子任务已完成"
+    },
+    "format": {
+      "passed": false,
+      "message": "结果中缺少 result 或 output 字段"
+    },
+    "timeout": {
+      "passed": true,
+      "message": "未超时 (实际0.000149秒 <= 预估1800秒)"
+    },
+    "error_free": {
+      "passed": true,
+      "message": "无错误"
+    }
+  },
+  "errors": [
+    "结果中缺少 result 或 output 字段"
+  ],
+  "warnings": [],
+  "verified_at": "2026-04-16T19:07:42.959872"
+}

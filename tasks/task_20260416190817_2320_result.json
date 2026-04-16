@@ -1,0 +1,23 @@
+{
+  "task_id": "task_20260416190817_2320",
+  "status": "failed",
+  "subtask_results": [
+    {
+      "subtask_id": "task_20260416190817_2320_1",
+      "step": 1,
+      "status": "failed",
+      "tool": "read_file",
+      "start_time": "2026-04-16T19:08:28.018114",
+      "end_time": "2026-04-16T19:08:28.018195",
+      "duration_seconds": 8.1e-05,
+      "output": null,
+      "error": "文件不存在: scripts目录下的py",
+      "retry_count": 0
+    }
+  ],
+  "total_time_seconds": 6.001206,
+  "started_at": "2026-04-16T19:08:22.017119",
+  "completed_at": "2026-04-16T19:08:28.018325",
+  "error": "失败子任务: task_20260416190817_2320_1",
+  "retry_count": 0
+}
