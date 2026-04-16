@@ -237,9 +237,34 @@ class TaskMonitor:
     
     def _send_alert(self, task_id: str, error: str) -> None:
         """发送告警通知（飞书）"""
-        # TODO: 实现飞书告警
-        # 目前只记录日志
-        self._log("ALERT", task_id, f"发送告警: {error}")
+        # 导入飞书告警模块
+        try:
+            import sys
+            sys.path.insert(0, str(self.base_dir / "scripts"))
+            from feishu_alert import FeishuAlert
+
+            feishu = FeishuAlert(self.base_dir)
+
+            # 获取重试次数
+            retry_count = 0
+            try:
+                result = self._load_result(task_id)
+                retry_count = result.get("retry_count", 0)
+            except Exception:
+                pass
+
+            # 发送失败告警
+            feishu.send_task_failed(
+                task_id=task_id,
+                error=error,
+                retry_count=retry_count,
+                max_retries=self._get_retry_config()["max_attempts"]
+            )
+
+            self._log("ALERT", task_id, f"飞书告警已发送: {error[:50]}...")
+
+        except Exception as e:
+            self._log("ERROR", task_id, f"飞书告警发送失败: {e}")
     
     def get_pending_tasks(self) -> list:
         """获取待执行任务"""
@@ -321,23 +346,23 @@ class TaskMonitor:
             "by_type": {},
             "by_priority": {}
         }
-        
+
         for task_file in self.tasks_dir.glob("task_*.json"):
             if "_result" in task_file.name or "_verification" in task_file.name:
                 continue
-            
+
             try:
                 with open(task_file, 'r', encoding='utf-8') as f:
                     task = json.load(f)
-                
+
                 stats["total"] += 1
-                
+
                 task_type = task.get("task_type", "unknown")
                 priority = task.get("priority", "P2")
-                
+
                 stats["by_type"][task_type] = stats["by_type"].get(task_type, 0) + 1
                 stats["by_priority"][priority] = stats["by_priority"].get(priority, 0) + 1
-                
+
                 # 检查状态
                 result_file = self.tasks_dir / f"{task['task_id']}_result.json"
                 if result_file.exists():
@@ -350,11 +375,38 @@ class TaskMonitor:
                         stats["failed"] += 1
                 else:
                     stats["pending"] += 1
-                    
+
             except Exception:
                 continue
-        
+
         return stats
+
+    def send_health_report(self) -> bool:
+        """发送健康报告到飞书"""
+        try:
+            import sys
+            sys.path.insert(0, str(self.base_dir / "scripts"))
+            from feishu_alert import FeishuAlert
+
+            feishu = FeishuAlert(self.base_dir)
+            stats = self.get_statistics()
+            failed = self.get_failed_tasks()
+
+            recent_failed = [
+                {
+                    "task_id": f["task"]["task_id"],
+                    "error": f["result"].get("error", "未知错误")
+                }
+                for f in failed[:5]
+            ]
+
+            result = feishu.send_health_report(stats, recent_failed)
+            self._log("INFO", "MONITOR", f"健康报告发送: {'成功' if result else '失败'}")
+            return result
+
+        except Exception as e:
+            self._log("ERROR", "MONITOR", f"健康报告发送失败: {e}")
+            return False
     
     def run_monitoring_cycle(self) -> dict:
         """运行一次监控周期"""
