@@ -1,0 +1,32 @@
+{
+  "task_id": "task_20260416185435_5600",
+  "original_description": "帮我读取config目录下的所有yaml文件，然后统计每个文件的行数",
+  "task_type": "file_operation",
+  "priority": "P2",
+  "subtasks": [
+    {
+      "id": "task_20260416185435_5600_1",
+      "step": 1,
+      "description": "帮我读取config目录下的所有yaml文件，",
+      "tool": "read_file",
+      "skill": null,
+      "depends_on": [],
+      "timeout_seconds": 300,
+      "status": "pending"
+    },
+    {
+      "id": "task_20260416185435_5600_2",
+      "step": 2,
+      "description": "统计每个文件的行数",
+      "tool": "terminal",
+      "skill": null,
+      "depends_on": [
+        "task_20260416185435_5600_1"
+      ],
+      "timeout_seconds": 1800,
+      "status": "pending"
+    }
+  ],
+  "total_estimated_time": 450,
+  "created_at": "2026-04-16T18:54:35.423439"
+}
