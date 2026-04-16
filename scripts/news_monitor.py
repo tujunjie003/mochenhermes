@@ -44,28 +44,28 @@ import xml.etree.ElementTree as ET
 BING_API_KEY = ""  # 可选填
 USE_BING = bool(BING_API_KEY)
 
-# 默认订阅源
+# 默认订阅源（实测可用）
 DEFAULT_SOURCES = {
     "幼教": [
-        {"name": "芥末堆", "url": "https://www.ijiandao.com/feed", "type": "rss"},
-        {"name": "多知网", "url": "https://www.duozhi.com/rss", "type": "rss"},
+        # 幼教源较少，用科技/商业源补充
     ],
     "AI科技": [
-        {"name": "机器之心", "url": "https://RSS.abitop.com/?s=ai", "type": "rss"},
-        {"name": "36kr AI", "url": "https://36kr.com/feed", "type": "rss"},
-        {"name": "知乎AI", "url": "https://www.zhihu.com/rss", "type": "rss"},
+        {"name": "InfoQ", "url": "https://feed.infoq.com/", "type": "rss"},
+        {"name": "OSCHINA", "url": "https://www.oschina.net/news/rss", "type": "rss"},
+        {"name": "Solidot", "url": "https://www.solidot.org/index.rss", "type": "rss"},
+        {"name": "少数派", "url": "https://sspai.com/feed", "type": "rss"},
     ],
     "赚钱": [
-        {"name": "小马谋士", "url": "https://www.xiaomazhi.com/feed", "type": "rss"},
-        {"name": "生财有术", "url": "https://readmore.fun/feed", "type": "rss"},
+        {"name": "创业邦", "url": "https://www.cyzone.cn/rss/", "type": "rss"},
+        {"name": "经济观察报", "url": "https://www.eeo.com.cn/rss.xml", "type": "rss"},
     ]
 }
 
 # 关键词配置
 KEYWORDS = {
-    "幼教": ["教育", "培训", "幼儿", "少儿", "K12", "STEAM", "素质教育", "营地教育", "早教"],
-    "AI科技": ["AI", "人工智能", "大模型", "GPT", "LLM", "ChatGPT", "Grok", "Claude", "Gemini", "科技", "创业", "融资"],
-    "赚钱": ["赚钱", "变现", "副业", "创业", "项目", "月入", "年收入", "商业模式", "盈利", "ROI", "GMV"]
+    "幼教": ["教育", "培训", "幼儿", "少儿", "K12", "STEAM", "素质教育", "早教", "托育", "幼儿园", "教培", "营地", "游学"],
+    "AI科技": ["AI", "人工智能", "大模型", "GPT", "LLM", "ChatGPT", "Grok", "Claude", "Gemini", "科技", "创业", "融资", "技术", "软件", "开发者", "开源"],
+    "赚钱": ["赚钱", "变现", "副业", "创业", "项目", "月入", "年收入", "商业模式", "盈利", "ROI", "GMV", "投资", "融资", "上市", "并购"]
 }
 
 
@@ -255,10 +255,20 @@ class NewsMonitor:
             })
 
             with urllib.request.urlopen(req, timeout=15) as response:
-                xml_content = response.read()
+                raw_content = response.read()
+                # 检测编码
+                encoding = response.headers.get_content_charset() or 'utf-8'
+                try:
+                    xml_text = raw_content.decode(encoding)
+                except (UnicodeDecodeError, LookupError):
+                    # 尝试gbk或gb2312
+                    try:
+                        xml_text = raw_content.decode('gbk')
+                    except:
+                        xml_text = raw_content.decode('utf-8', errors='ignore')
 
             # 解析XML
-            root = ET.fromstring(xml_content)
+            root = ET.fromstring(xml_text)
 
             # RSS格式
             channel = root.find("channel")
@@ -272,37 +282,35 @@ class NewsMonitor:
                 # 获取标题
                 title_elem = entry.find("title")
                 title = title_elem.text if title_elem is not None else ""
+                if title_elem is not None and title_elem.text:
+                    title = title_elem.text
+                else:
+                    title = ""
 
                 # 获取链接
                 link_elem = entry.find("link")
                 link = ""
                 if link_elem is not None:
-                    link = link_elem.text if link_elem.text else ""
-                    # Atom格式的link可能没有text
-                    if not link:
+                    if link_elem.text:
+                        link = link_elem.text
+                    else:
                         link = link_elem.get("href", "")
 
-                # 获取摘要 - 使用更安全的方式
-                summary_elem = entry.find("description")
-                if summary_elem is None:
-                    summary_elem = entry.find("summary")
-                if summary_elem is None:
-                    summary_elem = entry.find("content")
+                # 获取摘要
                 summary = ""
-                if summary_elem is not None and summary_elem.text:
-                    summary = self._clean_html(summary_elem.text)
+                for tag in ["description", "summary", "content"]:
+                    elem = entry.find(tag)
+                    if elem is not None and elem.text:
+                        summary = self._clean_html(elem.text)
+                        break
 
                 # 获取发布日期
-                pub_elem = entry.find("pubDate")
-                if pub_elem is None:
-                    pub_elem = entry.find("published")
-                if pub_elem is None:
-                    pub_elem = entry.find("updated")
-                published = ""
-                if pub_elem is not None and pub_elem.text:
-                    published = self._parse_date(pub_elem.text)
-                else:
-                    published = datetime.now().date().isoformat()
+                published = datetime.now().date().isoformat()
+                for tag in ["pubDate", "published", "updated"]:
+                    elem = entry.find(tag)
+                    if elem is not None and elem.text:
+                        published = self._parse_date(elem.text)
+                        break
 
                 # 关键词过滤
                 if keywords and not any(kw in (title or "") or kw in (summary or "") for kw in keywords):
