@@ -79,12 +79,12 @@ class TaskDecomposer:
     
     # 工具映射
     TOOL_MAPPING = {
-        "terminal": ["执行", "命令", "运行", "bash", "shell", "终端"],
-        "read_file": ["读取", "查看", "cat", "head", "tail"],
-        "write_file": ["写入", "创建", "新建", "write", "create"],
-        "patch": ["编辑", "修改", "替换", "edit", "modify"],
-        "search_files": ["搜索", "查找", "grep", "search"],
-        "browser_navigate": ["打开", "访问", "导航", "open", "navigate", "go to"],
+        "terminal": ["执行", "命令", "运行", "bash", "shell", "终端", "查看", "列出", "显示", "看", "找", "统计", "搜索", "ls", "cat", "grep", "find", "wc", "git"],
+        "read_file": ["读取文件", "查看文件", "cat文件", "打开文件"],
+        "write_file": ["写入", "创建文件", "新建文件", "write", "create file"],
+        "patch": ["编辑", "修改文件", "替换", "edit file", "modify"],
+        "search_files": ["搜索内容", "grep", "search in"],
+        "browser_navigate": ["打开", "访问", "导航", "open", "navigate", "go to", "网页"],
         "browser_click": ["点击", "click"],
         "browser_type": ["输入", "填写", "type"],
         "delegate_task": ["委托", "分配", "子代理", "delegate", "subagent"],
@@ -137,14 +137,25 @@ class TaskDecomposer:
             return "P2"
     
     def _extract_tools(self, description: str) -> list:
-        """提取需要的工具"""
-        found_tools = []
+        """提取需要的工具（按优先级）"""
         desc_lower = description.lower()
+        found_tools = []
         
-        for tool, keywords in self.TOOL_MAPPING.items():
+        # 按优先级顺序检查（terminal放最后因为它最宽泛）
+        tool_order = [
+            "delegate_task", "browser_navigate", "browser_click", "browser_type",
+            "search_files", "patch", "write_file", "read_file", "terminal"
+        ]
+        
+        for tool in tool_order:
+            keywords = self.TOOL_MAPPING.get(tool, [])
             if any(kw.lower() in desc_lower for kw in keywords):
+                # terminal太宽泛，只在没有其他匹配时用它
+                if tool == "terminal" and found_tools:
+                    continue
                 found_tools.append(tool)
         
+        # 如果没有匹配任何工具，默认用terminal
         return found_tools if found_tools else ["terminal"]
     
     def _is_atomic(self, description: str) -> bool:

@@ -103,8 +103,12 @@ class ToolExecutor:
                 text=True,
                 timeout=timeout
             )
+            
+            # 判断成功：exit_code为0，或者有stdout输出（有些命令如wc对空输入返回非0）
+            success = result.returncode == 0 or bool(result.stdout.strip())
+            
             return {
-                "success": result.returncode == 0,
+                "success": success,
                 "output": result.stdout,
                 "error": result.stderr if result.returncode != 0 else None,
                 "exit_code": result.returncode
@@ -350,9 +354,12 @@ class TaskExecutionEngine:
         # 清理描述末尾的标点和空白
         desc = description.strip().rstrip('，,').rstrip('。.')
         
-        # 如果描述已经是英文命令，直接返回
-        if any(cmd in desc for cmd in ["ls", "cat", "grep", "find", "wc", "echo", "cd", "git", "python"]):
-            return desc
+        # 如果描述已经是英文命令（完整单词匹配），直接返回
+        import re
+        english_patterns = [r'\bls\b', r'\bcat\b', r'\bgrep\b', r'\bfind\b', r'\bwc\b', r'\becho\b', r'\bcd\b', r'\bgit\b', r'\bpython\b']
+        for pattern in english_patterns:
+            if re.search(pattern, desc):
+                return desc
         
         # 中文描述转换
         commands = []
@@ -363,6 +370,7 @@ class TaskExecutionEngine:
             known_dirs = ["scripts", "config", "tasks", "logs", "skills", "memory"]
             dir_path = None
             
+            # 简单查找：先找目录名
             for d in known_dirs:
                 if d in desc:
                     dir_path = d
@@ -372,11 +380,15 @@ class TaskExecutionEngine:
                 if not dir_path.startswith("/"):
                     dir_path = f"{self.base_dir}/{dir_path}"
                 
-                # 是否过滤文件类型
-                if "py" in desc:
+                # 是否过滤文件类型 - 更精确的匹配
+                if ".py" in desc or ("py文件" in desc):
                     commands.append(f"ls {dir_path}/*.py 2>/dev/null || ls {dir_path}/")
-                elif "yaml" in desc:
+                elif ".yaml" in desc or ("yaml文件" in desc):
                     commands.append(f"ls {dir_path}/*.yaml 2>/dev/null || ls {dir_path}/")
+                elif ".json" in desc or ("json文件" in desc):
+                    commands.append(f"ls {dir_path}/*.json 2>/dev/null || ls {dir_path}/")
+                elif ".md" in desc or ("md文件" in desc):
+                    commands.append(f"ls {dir_path}/*.md 2>/dev/null || ls {dir_path}/")
                 else:
                     commands.append(f"ls {dir_path}/")
                 return " && ".join(commands)
@@ -394,17 +406,33 @@ class TaskExecutionEngine:
                 commands.append(f"ls {path}")
         
         if "统计" in desc or "行数" in desc:
-            if "yaml" in desc:
-                commands.append(f"wc -l {self.base_dir}/config/*.yaml")
+            # 尝试找已知目录
+            known_dirs = ["scripts", "config", "tasks", "logs", "skills", "memory"]
+            dir_path = None
+            for d in known_dirs:
+                if d in desc:
+                    dir_path = d
+                    break
+            
+            if dir_path:
+                if not dir_path.startswith("/"):
+                    dir_path = f"{self.base_dir}/{dir_path}"
+                # 根据文件类型
+                if ".py" in desc or "py文件" in desc:
+                    commands.append(f"wc -l {dir_path}/*.py 2>/dev/null")
+                elif ".yaml" in desc or "yaml文件" in desc:
+                    commands.append(f"wc -l {dir_path}/*.yaml 2>/dev/null")
+                elif ".json" in desc or "json文件" in desc:
+                    commands.append(f"wc -l {dir_path}/*.json 2>/dev/null")
+                elif ".md" in desc or "md文件" in desc:
+                    commands.append(f"wc -l {dir_path}/*.md 2>/dev/null")
+                else:
+                    commands.append(f"wc -l {dir_path}/* 2>/dev/null")
+                return " && ".join(commands)
             else:
-                # 尝试从描述中提取目录
-                import re
-                dir_match = re.search(r'([^\s]+)目录', desc)
-                if dir_match:
-                    dir_path = dir_match.group(1)
-                    if not dir_path.startswith("/"):
-                        dir_path = f"{self.base_dir}/{dir_path}"
-                    commands.append(f"wc -l {dir_path}/*")
+                # 没找到特定目录，但有统计需求，默认用base_dir
+                commands.append(f"wc -l {self.base_dir}/* 2>/dev/null")
+                return " && ".join(commands)
         
         if "搜索" in desc or "查找" in desc:
             # 提取搜索模式

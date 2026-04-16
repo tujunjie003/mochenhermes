@@ -1,0 +1,32 @@
+{
+  "task_id": "task_20260416191115_5584",
+  "original_description": "查看skills目录有哪些文件，然后统计每个文件的行数",
+  "task_type": "complex_task",
+  "priority": "P2",
+  "subtasks": [
+    {
+      "id": "task_20260416191115_5584_1",
+      "step": 1,
+      "description": "查看skills目录有哪些文件，",
+      "tool": "read_file",
+      "skill": null,
+      "depends_on": [],
+      "timeout_seconds": 1800,
+      "status": "pending"
+    },
+    {
+      "id": "task_20260416191115_5584_2",
+      "step": 2,
+      "description": "统计每个文件的行数",
+      "tool": "terminal",
+      "skill": null,
+      "depends_on": [
+        "task_20260416191115_5584_1"
+      ],
+      "timeout_seconds": 1800,
+      "status": "pending"
+    }
+  ],
+  "total_estimated_time": 2700,
+  "created_at": "2026-04-16T19:11:15.625983"
+}

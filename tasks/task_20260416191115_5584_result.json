@@ -1,0 +1,35 @@
+{
+  "task_id": "task_20260416191115_5584",
+  "status": "failed",
+  "subtask_results": [
+    {
+      "subtask_id": "task_20260416191115_5584_1",
+      "step": 1,
+      "status": "failed",
+      "tool": "read_file",
+      "start_time": "2026-04-16T19:11:24.949660",
+      "end_time": "2026-04-16T19:11:24.949708",
+      "duration_seconds": 4.8e-05,
+      "output": null,
+      "error": "文件不存在: skills目录有哪些，",
+      "retry_count": 0
+    },
+    {
+      "subtask_id": "task_20260416191115_5584_2",
+      "step": 2,
+      "status": "failed",
+      "tool": "terminal",
+      "start_time": "2026-04-16T19:11:30.953286",
+      "end_time": "2026-04-16T19:11:30.954471",
+      "duration_seconds": 0.001185,
+      "output": "",
+      "error": "/bin/sh: 1: 统计每个文件的行数: not found\n",
+      "retry_count": 0
+    }
+  ],
+  "total_time_seconds": 12.006097,
+  "started_at": "2026-04-16T19:11:18.948483",
+  "completed_at": "2026-04-16T19:11:30.954580",
+  "error": "失败子任务: task_20260416191115_5584_1, task_20260416191115_5584_2",
+  "retry_count": 0
+}
