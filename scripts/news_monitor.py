@@ -47,17 +47,20 @@ USE_BING = bool(BING_API_KEY)
 # 默认订阅源（实测可用）
 DEFAULT_SOURCES = {
     "幼教": [
-        # 幼教源较少，用科技/商业源补充
+        {"name": "黑板洞察", "url": "https://www.heibandongcha.com/rss", "type": "rss"},
     ],
     "AI科技": [
         {"name": "InfoQ", "url": "https://feed.infoq.com/", "type": "rss"},
         {"name": "OSCHINA", "url": "https://www.oschina.net/news/rss", "type": "rss"},
         {"name": "Solidot", "url": "https://www.solidot.org/index.rss", "type": "rss"},
-        {"name": "少数派", "url": "https://sspai.com/feed", "type": "rss"},
+        {"name": "钛媒体", "url": "https://www.tmtpost.com/rss", "type": "rss"},
+        {"name": "量子位", "url": "https://www.qbitai.com/feed", "type": "rss"},
+        {"name": "新智元", "url": "https://syncedreview.com/feed/", "type": "rss"},
     ],
     "赚钱": [
         {"name": "创业邦", "url": "https://www.cyzone.cn/rss/", "type": "rss"},
         {"name": "经济观察报", "url": "https://www.eeo.com.cn/rss.xml", "type": "rss"},
+        {"name": "少数派", "url": "https://sspai.com/feed", "type": "rss"},
     ]
 }
 
