@@ -1,0 +1,23 @@
+{
+  "name": "查看_skills",
+  "description": "自动从任务总结: 查看skills目录有哪些文件，然后统计每个文件的行数",
+  "category": "data-science",
+  "trigger_keywords": [
+    "查看",
+    "skills"
+  ],
+  "steps": [
+    "执行: 0 /home/hermes/.hermes/repos/mochenhermes/README.md\n      0 /home/hermes/.hermes/repos/mochenhermes/..."
+  ],
+  "tools_used": [
+    "terminal"
+  ],
+  "pitfalls": [],
+  "verification": "检查任务结果文件: tasks/task_20260416191157_4352_result.json",
+  "examples": [
+    "用户说: 查看skills目录有哪些文件，然后统计每个文件的行数..."
+  ],
+  "created_at": "2026-04-16T19:30:26.645974",
+  "updated_at": "2026-04-16T19:30:26.645974",
+  "times_used": 0
+}

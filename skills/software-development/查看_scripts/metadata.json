@@ -1,0 +1,23 @@
+{
+  "name": "查看_scripts",
+  "description": "自动从任务总结: 查看scripts目录有哪些py文件",
+  "category": "software-development",
+  "trigger_keywords": [
+    "查看",
+    "scripts"
+  ],
+  "steps": [
+    "执行: /home/hermes/.hermes/repos/mochenhermes/scripts/feishu_alert.py\n/home/hermes/.hermes/repos/mochenher..."
+  ],
+  "tools_used": [
+    "terminal"
+  ],
+  "pitfalls": [],
+  "verification": "检查任务结果文件: /home/hermes/.hermes/repos/mochenhermes/tasks/task_20260416193047_2304_result.json",
+  "examples": [
+    "用户说: 查看scripts目录有哪些py文件..."
+  ],
+  "created_at": "2026-04-16T19:30:56.146395",
+  "updated_at": "2026-04-16T19:30:56.146395",
+  "times_used": 0
+}

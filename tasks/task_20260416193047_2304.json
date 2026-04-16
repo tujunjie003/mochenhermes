@@ -1,0 +1,20 @@
+{
+  "task_id": "task_20260416193047_2304",
+  "original_description": "查看scripts目录有哪些py文件",
+  "task_type": "complex_task",
+  "priority": "P2",
+  "subtasks": [
+    {
+      "id": "task_20260416193047_2304_1",
+      "step": 1,
+      "description": "查看scripts目录有哪些py文件",
+      "tool": "terminal",
+      "skill": null,
+      "depends_on": [],
+      "timeout_seconds": 1800,
+      "status": "pending"
+    }
+  ],
+  "total_estimated_time": 1800,
+  "created_at": "2026-04-16T19:30:47.912194"
+}

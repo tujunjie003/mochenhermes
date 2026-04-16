@@ -600,9 +600,45 @@ class TaskExecutionEngine:
             with open(result_path, 'w', encoding='utf-8') as f:
                 json.dump(result_data, f, ensure_ascii=False, indent=2)
         
+        # 自动技能沉淀
+        self._auto_skill_summarize(task_id, task, execution_result)
+        
         self._log("INFO", task_id, f"任务执行完成: status={final_status}, time={total_time:.2f}秒")
         
         return execution_result
+    
+    def _auto_skill_summarize(self, task_id: str, task: dict, result: ExecutionResult) -> None:
+        """自动沉淀技能"""
+        try:
+            from skill_manager import SkillManager
+            
+            manager = SkillManager()
+            
+            # 提取工具列表
+            tools_used = [r.tool for r in result.subtask_results]
+            
+            # 自动总结
+            skill_path = manager.auto_summarize(
+                task_id=task_id,
+                original_description=task.get("original_description", ""),
+                subtask_results=[
+                    {
+                        "status": r.status,
+                        "output": r.output,
+                        "tool": r.tool
+                    }
+                    for r in result.subtask_results
+                ],
+                tools_used=tools_used,
+                execution_time=result.total_time_seconds,
+                result_file=str(self.tasks_dir / f"{task_id}_result.json")
+            )
+            
+            if skill_path:
+                self._log("INFO", task_id, f"技能已沉淀: {skill_path}")
+            
+        except Exception as e:
+            self._log("WARN", task_id, f"技能沉淀失败: {e}")
 
 
 def main():
