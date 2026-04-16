@@ -1,0 +1,70 @@
+# 任务Schema定义
+# 用于规范化任务输入、输出、边界
+
+name: 高度自治助理系统任务Schema
+version: 1.0.0
+last_updated: "2026-04-16"
+
+# 任务状态定义
+task_status:
+  - pending      # 等待执行
+  - running      # 执行中
+  - completed    # 完成
+  - failed       # 失败
+  - cancelled    # 取消
+
+# 任务优先级
+priority_levels:
+  P0: "紧急且简单 — 立即执行"
+  P1: "紧急且复杂 — 高优先级"
+  P2: "不紧急 — 排队等待"
+
+# 性能基准（时限）
+performance_baseline:
+  query_search:
+    timeout_seconds: 120  # 2分钟
+    examples: ["搜索", "查询", "查找"]
+
+  file_operation:
+    timeout_seconds: 300  # 5分钟
+    examples: ["读取", "写入", "编辑", "移动", "删除"]
+
+  browser_operation:
+    timeout_seconds: 300  # 5分钟
+    examples: ["网页", "浏览器", "点击", "填表"]
+
+  complex_task:
+    timeout_seconds: 1800  # 30分钟
+    examples: ["多步骤", "复杂任务", "委托子代理"]
+
+# 任务结构
+task_schema:
+  required_fields:
+    - id          # 任务唯一标识
+    - type        # 任务类型
+    - description # 任务描述
+    - priority    # 优先级
+    - created_at  # 创建时间
+
+  optional_fields:
+    - parent_id   # 父任务ID（子任务时填写）
+    - dependencies # 依赖任务ID列表
+    - deadline    # 截止时间
+    - retry_count # 当前重试次数
+    - result      # 执行结果
+    - error       # 错误信息
+
+# 验收机制
+verification:
+  system_check: true   # 系统初检
+  user_final_check: true  # 用户终验
+
+# 失败重试机制
+retry:
+  max_attempts: 3
+  backoff_multiplier: 2  # 指数退避：2s, 4s, 8s
+
+# 分解器规则
+decomposer:
+  atomic_level: "单一工具调用或单一子代理任务"
+  max_depth: 5  # 最大分解深度
