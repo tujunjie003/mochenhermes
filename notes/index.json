@@ -1,0 +1,29 @@
+{
+  "memos": [
+    {
+      "id": "a08f3c372b86",
+      "content": "测试备忘录：记得买咖啡 -c 生活",
+      "category": "待办",
+      "tags": [],
+      "status": "pending",
+      "created_at": "2026-04-16T20:12:22.930959",
+      "updated_at": "2026-04-16T20:12:22.930959",
+      "reminded_at": "",
+      "completed_at": "",
+      "source": "user"
+    },
+    {
+      "id": "7b9a0a2d4a0a",
+      "content": "测试提醒：明天要交报告",
+      "category": "工作",
+      "tags": [],
+      "status": "pending",
+      "created_at": "2026-04-16T20:13:19.656788",
+      "updated_at": "2026-04-16T20:13:19.656788",
+      "reminded_at": "2026-04-16T20:14:19.656772",
+      "completed_at": "",
+      "source": "user"
+    }
+  ],
+  "last_backup": null
+}
